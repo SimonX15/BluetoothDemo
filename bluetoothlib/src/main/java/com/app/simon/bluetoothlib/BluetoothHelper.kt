@@ -3,11 +3,12 @@ package com.app.simon.bluetoothlib
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.provider.Settings
 import android.util.Log
+import org.jetbrains.anko.toast
 
 
 /**
@@ -16,77 +17,67 @@ import android.util.Log
 
  * @author xw
  */
-object BluetoothHelper {
+class BluetoothHelper(val context: Context) {
 
+    private val TAG = BluetoothHelper::class.java.simpleName
 
+    /** 蓝牙操作 */
+    private var mBluetoothAdapter: BluetoothAdapter? = null
 
-    fun test(context: Context) {
-        //首先获取BluetoothManager
+    /** 广播监听 */
+    private val bluetoothBroadcastService = BluetoothBroadcastService()
+
+    /** 是否正在搜索 */
+    private var isScanning = false
+
+    init {
         val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         //获取BluetoothAdapter
-        bluetoothManager.adapter
+        mBluetoothAdapter = bluetoothManager.adapter
+    }
 
-        // 用BroadcastReceiver来取得搜索结果
+    /** 打开蓝牙 */
+    fun open(): Unit {
+        if (mBluetoothAdapter == null) {
+            Log.e(TAG, "该手机不支持蓝牙")
+            context.toast("该手机不支持蓝牙")
+            return
+        }
+        if (!mBluetoothAdapter!!.isEnabled) {
+            val enableBtIntent = Intent()
+            //第一种，到设置页面
+            enableBtIntent.action = Settings.ACTION_BLUETOOTH_SETTINGS
+            //第二种，直接在页面点击开启
+//            enableBtIntent.action = BluetoothAdapter.ACTION_REQUEST_ENABLE
+            enableBtIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            context.startActivity(enableBtIntent)
+            //第三种，直接开启，需要权限
+//            mBluetoothAdapter!!.enable()
+        } else {
+            Log.i(TAG, "蓝牙已打开")
+            context.toast("蓝牙已打开")
+        }
+    }
+
+    /** 关闭蓝牙 */
+    fun close(): Unit {
+        mBluetoothAdapter?.cancelDiscovery()
+    }
+
+    /** 注册 */
+    fun registerReceiver() {
         val intent = IntentFilter()
         intent.addAction(BluetoothDevice.ACTION_FOUND)//搜索发现设备
         intent.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED)//状态改变
         intent.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED)//行动扫描模式改变了
         intent.addAction(BluetoothAdapter.ACTION_STATE_CHANGED)//动作状态发生了变化
-        context.registerReceiver(getReceiver(), intent)
+        context.registerReceiver(bluetoothBroadcastService, intent)
     }
 
-    /**
-     * 蓝牙接收广播
-     */
-    fun getReceiver(): BroadcastReceiver {
-
-        val searchDevices = object : BroadcastReceiver() {
-            //接收
-            override fun onReceive(context: Context, intent: Intent) {
-                val action = intent.action
-                val b = intent.extras
-                val lstName = b.keySet().toTypedArray()
-
-                // 显示所有收到的消息及其细节
-                for (i in lstName.indices) {
-                    val keyName = lstName[i].toString()
-                    Log.e("bluetooth", keyName + ">>>" + b.get(keyName).toString())
-                }
-                val device: BluetoothDevice
-
-                when (action) {
-                // 搜索发现设备时，取得设备的信息；注意，这里有可能重复搜索同一设备
-                    BluetoothDevice.ACTION_FOUND -> {
-                        device = intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
-                        Log.d("BlueToothTestActivity", "ACTION_FOUND......")
-//                        onRegisterBltReceiver.onBluetoothDevice(device)
-                    }
-                //状态改变时
-                    BluetoothDevice.ACTION_BOND_STATE_CHANGED -> {
-                        device = intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
-                        when (device.bondState) {
-                            BluetoothDevice.BOND_BONDING//正在配对
-                            -> {
-                                Log.d("BlueToothTestActivity", "正在配对......")
-//                                onRegisterBltReceiver.onBltIng(device)
-                            }
-                            BluetoothDevice.BOND_BONDED//配对结束
-                            -> {
-                                Log.d("BlueToothTestActivity", "完成配对")
-//                                onRegisterBltReceiver.onBltEnd(device)
-                            }
-                            BluetoothDevice.BOND_NONE//取消配对/未配对
-                            -> {
-                                Log.d("BlueToothTestActivity", "取消配对")
-//                                onRegisterBltReceiver.onBltNone(device)
-                            }
-                            else -> {
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return searchDevices
+    /** 取消注册 */
+    fun unRegisterReceiver() {
+        context.unregisterReceiver(bluetoothBroadcastService)
+        //关闭蓝牙
+        close()
     }
 }

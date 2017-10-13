@@ -31,5 +31,12 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.3.1'
     testCompile 'junit:junit:4.12'
 
+    //kotlin
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    //anko
+    compile "org.jetbrains.anko:anko-appcompat-v7-listeners:$ankoVersion"
+    compile "org.jetbrains.anko:anko-design-listeners:$ankoVersion"
+    compile "org.jetbrains.anko:anko-design:$ankoVersion"
+    compile "org.jetbrains.anko:anko-sdk15-listeners:$ankoVersion"
+    compile "org.jetbrains.anko:anko-sdk15:$ankoVersion"
 }
