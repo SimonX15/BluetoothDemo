@@ -33,6 +33,14 @@ class MainActivity : AppCompatActivity() {
             bluetoothHelper!!.open()
         }
 
+        btn_start_search.setOnClickListener {
+            bluetoothHelper!!.startSearchDevice()
+        }
+
+        btn_stop_search.setOnClickListener {
+            bluetoothHelper!!.stopSearchDevice()
+        }
+
         btn_close.setOnClickListener {
             bluetoothHelper!!.close()
         }

@@ -64,6 +64,21 @@ class BluetoothHelper(val context: Context) {
         mBluetoothAdapter?.disable()
     }
 
+    /** 开始搜索 */
+    fun startSearchDevice(): Boolean {
+//        if (mBluetoothAdapter!!.isDiscovering) {
+//
+//        }
+        mBluetoothAdapter!!.startDiscovery()
+        //这里的true并不是代表搜索到了设备，而是表示搜索成功开始。
+        return true
+    }
+
+    /** 停止搜索 */
+    fun stopSearchDevice(): Boolean {
+        return mBluetoothAdapter!!.cancelDiscovery()
+    }
+
     /** 注册 */
     fun registerReceiver() {
         val intent = IntentFilter()
