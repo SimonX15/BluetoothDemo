@@ -61,7 +61,7 @@ class BluetoothHelper(val context: Context) {
 
     /** 关闭蓝牙 */
     fun close(): Unit {
-        mBluetoothAdapter?.cancelDiscovery()
+        mBluetoothAdapter?.disable()
     }
 
     /** 注册 */
@@ -77,7 +77,7 @@ class BluetoothHelper(val context: Context) {
     /** 取消注册 */
     fun unRegisterReceiver() {
         context.unregisterReceiver(bluetoothBroadcastService)
-        //关闭蓝牙
-        close()
+        //取消蓝牙的配对
+        mBluetoothAdapter?.cancelDiscovery()
     }
 }
