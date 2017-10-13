@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity
 import com.app.simon.bluetoothlib.BluetoothHelper
 import kotlinx.android.synthetic.main.activity_main.*
 
+
 class MainActivity : AppCompatActivity() {
 
     var bluetoothHelper: BluetoothHelper? = null
@@ -41,9 +42,18 @@ class MainActivity : AppCompatActivity() {
             bluetoothHelper!!.stopSearchDevice()
         }
 
+        btn_start_server.setOnClickListener {
+            bluetoothHelper!!.startServer()
+        }
+
         btn_close.setOnClickListener {
             bluetoothHelper!!.close()
         }
     }
 
+    class ClienThread : Thread() {
+        override fun run() {
+
+        }
+    }
 }

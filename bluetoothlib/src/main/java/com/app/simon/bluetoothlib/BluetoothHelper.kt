@@ -9,6 +9,7 @@ import android.content.IntentFilter
 import android.provider.Settings
 import android.util.Log
 import org.jetbrains.anko.toast
+import java.util.*
 
 
 /**
@@ -79,6 +80,12 @@ class BluetoothHelper(val context: Context) {
         return mBluetoothAdapter!!.cancelDiscovery()
     }
 
+    /** 打开服务器 */
+    fun startServer() {
+        ServerThread(mBluetoothAdapter!!).start()
+    }
+
+
     /** 注册 */
     fun registerReceiver() {
         val intent = IntentFilter()
@@ -94,5 +101,32 @@ class BluetoothHelper(val context: Context) {
         context.unregisterReceiver(bluetoothBroadcastService)
         //取消蓝牙的配对
         mBluetoothAdapter?.cancelDiscovery()
+    }
+
+    /** 连接的服务器 */
+    class ServerThread(val mBluetoothAdapter: BluetoothAdapter) : Thread() {
+        private val TAG = ServerThread::class.java.simpleName
+        override fun run() {
+            //服务器端的bltsocket需要传入uuid和一个独立存在的字符串，以便验证，通常使用包名的形式
+            val serverSocket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord("com.app.simon.bluetoothlib", UUID.fromString(BluetoothConstant.UUID))
+
+
+            Log.i(TAG, "等待客户连接...")
+
+            while (true) {
+                try {
+                    val socket = serverSocket.accept()
+                    val device = socket.remoteDevice
+                    Log.i(TAG, "接受客户连接 , 远端设备名字:" + device.name + " , 远端设备地址:" + device.address)
+
+                    if (socket.isConnected) {
+                        Log.i(TAG, "已建立与客户连接.")
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    break
+                }
+            }
+        }
     }
 }

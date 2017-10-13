@@ -40,20 +40,17 @@ class BluetoothBroadcastService : BroadcastReceiver() {
                 device = intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
                 when (device.bondState) {
                 //正在配对
-                    BluetoothDevice.BOND_BONDING
-                    -> {
+                    BluetoothDevice.BOND_BONDING -> {
                         Log.d(TAG, "正在配对：${"address=" + device.address + "  ;name=" + device.name}")
 //                                onRegisterBltReceiver.onBltIng(device)
                     }
                 //配对结束
-                    BluetoothDevice.BOND_BONDED
-                    -> {
+                    BluetoothDevice.BOND_BONDED -> {
                         Log.d(TAG, "完成配对：${"address=" + device.address + "  ;name=" + device.name}")
 //                                onRegisterBltReceiver.onBltEnd(device)
                     }
                 //取消配对/未配对
-                    BluetoothDevice.BOND_NONE
-                    -> {
+                    BluetoothDevice.BOND_NONE -> {
                         Log.d(TAG, "取消配对：${"address=" + device.address + "  ;name=" + device.name}")
 //                                onRegisterBltReceiver.onBltNone(device)
                     }
